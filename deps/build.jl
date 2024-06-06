@@ -190,24 +190,39 @@ if !isnothing(matlab_root)
         )
 
         if !is_ci()
-            println(io,
-                """
-                % Check if the `mexjulia` directory is already on the path
-                path_dirs = regexp(path, pathsep, 'split');
-                if ispc
-                    on_path = any(strcmpi($(matlab_escape(outdir)), path_dirs));
-                else
-                    on_path = any(strcmp($(matlab_escape(outdir)), path_dirs));
-                end
+            save_path = get(ENV, "JULIA_MEX_SAVE_PATH", "Y") == "Y"
+            if save_path
+                println(io,
+                    """
+                    % Check if the `mexjulia` directory is already on the path
+                    path_dirs = regexp(path, pathsep, 'split');
+                    if ispc
+                        on_path = any(strcmpi($(matlab_escape(outdir)), path_dirs));
+                    else
+                        on_path = any(strcmp($(matlab_escape(outdir)), path_dirs));
+                    end
 
-                % Add the `mexjulia` directory to the path and save the path (if necessary)
-                if ~on_path
-                    fprintf('%s is not on the MATLAB path. Adding it and saving...\\n\', $(matlab_escape(outdir)));
-                    path($(matlab_escape(outdir)), path);
-                    savepath;
-                end
-                """
-            )
+                    % Add the `mexjulia` directory to the path and save the path (if necessary)
+                    if ~on_path
+                        fprintf('%s is not on the MATLAB path. Adding it and saving...\\n\', $(matlab_escape(outdir)));
+                        path($(matlab_escape(outdir)), path);
+                        savepath;
+                    end
+                    """
+                )
+            else
+                @warn(
+                    """
+                    You have elected not to update the MATLAB path. \
+                    Please ensure $outdir is in your MATLAB path, \
+                    otherwise the `mexjulia` functionality will be unavailable.
+
+                    If this is a mistake, and you do want to update the MATLAB path, \
+                    either remove the environment variable JULIA_MEX_SAVE_PATH \
+                    or set it to "Y" and then rebuild Mex.jl.
+                    """
+                )
+            end
         end
     end
 

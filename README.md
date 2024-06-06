@@ -36,6 +36,21 @@ The build process will:
 
 By default, `Mex.jl` uses the MATLAB installation with the greatest version number. To specify that a specific MATLAB installation should be used, set the environment variable `MATLAB_ROOT`.
 
+### For Windows Users without Admin Priviledges
+
+The last step detailed above uses the MATLAB command `savepath`,
+which requires admin priviledges on Windows.
+To work around needing admin priviledges,
+set the `JULIA_MEX_SAVE_PATH` environment variable to a value other than `Y`
+before installing/building this package.
+In this case,
+it will be necessary to manually add the `mexjulia` directory
+to your MATLAB path,
+e.g., by creating a `startup.m` file in your `userpath`
+and calling `addpath C:\path\to\mexjulia` in that file.
+(`C:\path\to\` is the directory where Mex.jl was installed,
+typically `C:\Users\<user>\.julia\packages\Mex\<version_id>\`.)
+
 ## Quick start
 
 Use `jl.eval` to parse and evaluate MATLAB strings as Julia expressions:
